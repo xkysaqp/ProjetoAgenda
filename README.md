@@ -202,14 +202,3 @@ Configure o SendGrid para envio de emails:
 4. Push para a branch (`git push origin feature/AmazingFeature`)
 5. Abra um Pull Request
 
-
-## 🙏 Agradecimentos
-
-- [Radix UI](https://www.radix-ui.com/) pelos componentes acessíveis
-- [Tailwind CSS](https://tailwindcss.com/) pelo framework CSS
-- [Drizzle ORM](https://orm.drizzle.team/) pelo ORM moderno
-- [Vercel](https://vercel.com/) pela hospedagem e deploy
-
----
-
-⭐ **Se este projeto te ajudou, considere dar uma estrela!**
