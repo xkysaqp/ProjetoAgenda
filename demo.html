@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgendaFácil - Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        .hidden { display: none; }
+        .animate-spin { animation: spin 1s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="bg-slate-50">
+    <!-- Navigation -->
+    <nav class="bg-white border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                        <i data-lucide="calendar" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <span class="text-xl font-bold text-slate-900">AgendaFácil</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button onclick="showPage('dashboard')" class="nav-btn px-4 py-2 rounded-lg text-slate-700 hover:bg-slate-100">Dashboard</button>
+                    <button onclick="showPage('booking')" class="nav-btn px-4 py-2 rounded-lg text-slate-700 hover:bg-slate-100">Agendamento Público</button>
+                    <button onclick="logout()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">Sair</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Landing Page -->
+    <div id="landing-page" class="min-h-screen flex items-center justify-center">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            <div class="w-24 h-24 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-8">
+                <i data-lucide="calendar-check" class="w-12 h-12 text-white"></i>
+            </div>
+            <h1 class="text-5xl font-bold text-slate-900 mb-6">AgendaFácil</h1>
+            <p class="text-xl text-slate-600 mb-8">Plataforma completa de agendamento para prestadores de serviços</p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button onclick="showPage('setup')" class="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold">
+                    Começar Agora
+                </button>
+                <button onclick="showPage('booking')" class="px-8 py-3 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 font-semibold">
+                    Ver Demo Público
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Provider Setup -->
+    <div id="setup-page" class="hidden min-h-screen flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-lg p-8 w-full max-w-2xl">
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="store" class="w-8 h-8 text-blue-600"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-900 mb-2">Configure seu Negócio</h2>
+                <p class="text-slate-600">Vamos criar o perfil do seu negócio para que os clientes possam agendar seus serviços.</p>
+            </div>
+            <form id="setup-form" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Nome do Negócio *</label>
+                    <input type="text" id="businessName" required placeholder="Ex: Salão da Maria" 
+                           class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">URL de Agendamento *</label>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-sm text-slate-600">agendafacil.app/book/</span>
+                        <input type="text" id="slug" required placeholder="salao-da-maria"
+                               class="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Categoria</label>
+                        <input type="text" id="category" placeholder="Ex: Salão de Beleza"
+                               class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Telefone</label>
+                        <input type="tel" id="phone" placeholder="(11) 99999-9999"
+                               class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 font-semibold">
+                    Continuar
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboard-page" class="hidden min-h-screen p-6">
+        <div class="max-w-7xl mx-auto">
+            <!-- Header -->
+            <div class="flex items-center justify-between mb-8">
+                <div>
+                    <h1 class="text-3xl font-bold text-slate-900 mb-2">Bem-vindo, Maria!</h1>
+                    <p class="text-slate-600">Aqui está um resumo do seu negócio hoje.</p>
+                </div>
+                <button onclick="openCreateAppointment()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center space-x-2">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    <span>Novo Agendamento</span>
+                </button>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-lg p-6 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i data-lucide="calendar-check" class="w-5 h-5 text-blue-600"></i>
+                        </div>
+                        <span class="text-sm text-emerald-600 font-medium">+12%</span>
+                    </div>
+                    <h3 class="text-2xl font-bold text-slate-900 mb-1" id="todayCount">3</h3>
+                    <p class="text-slate-600 text-sm">Agendamentos Hoje</p>
+                </div>
+                <div class="bg-white rounded-lg p-6 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
+                            <i data-lucide="trending-up" class="w-5 h-5 text-emerald-600"></i>
+                        </div>
+                        <span class="text-sm text-emerald-600 font-medium">+8%</span>
+                    </div>
+                    <h3 class="text-2xl font-bold text-slate-900 mb-1" id="weekCount">15</h3>
+                    <p class="text-slate-600 text-sm">Esta Semana</p>
+                </div>
+                <div class="bg-white rounded-lg p-6 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i data-lucide="dollar-sign" class="w-5 h-5 text-purple-600"></i>
+                        </div>
+                        <span class="text-sm text-emerald-600 font-medium">+15%</span>
+                    </div>
+                    <h3 class="text-2xl font-bold text-slate-900 mb-1" id="revenueCount">R$ 1.240,00</h3>
+                    <p class="text-slate-600 text-sm">Receita do Mês</p>
+                </div>
+                <div class="bg-white rounded-lg p-6 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
+                            <i data-lucide="star" class="w-5 h-5 text-amber-600"></i>
+                        </div>
+                        <span class="text-sm text-slate-400 font-medium">—</span>
+                    </div>
+                    <h3 class="text-2xl font-bold text-slate-900 mb-1">4.8</h3>
+                    <p class="text-slate-600 text-sm">Avaliação Média</p>
+                </div>
+            </div>
+
+            <!-- Dashboard Navigation -->
+            <div class="bg-white rounded-lg shadow-sm mb-6">
+                <div class="border-b border-slate-200">
+                    <nav class="flex space-x-8 px-6">
+                        <button onclick="showDashboardTab('overview')" class="dashboard-tab py-4 border-b-2 border-blue-600 text-blue-600 font-medium">Dashboard</button>
+                        <button onclick="showDashboardTab('services')" class="dashboard-tab py-4 border-b-2 border-transparent text-slate-500 hover:text-slate-700">Serviços</button>
+                        <button onclick="showDashboardTab('availability')" class="dashboard-tab py-4 border-b-2 border-transparent text-slate-500 hover:text-slate-700">Disponibilidade</button>
+                        <button onclick="showDashboardTab('appointments')" class="dashboard-tab py-4 border-b-2 border-transparent text-slate-500 hover:text-slate-700">Agendamentos</button>
+                    </nav>
+                </div>
+
+                <!-- Overview Tab -->
+                <div id="overview-tab" class="dashboard-content p-6">
+                    <h3 class="text-lg font-semibold text-slate-900 mb-6">Próximos Agendamentos</h3>
+                    <div class="space-y-4" id="appointmentsList">
+                        <!-- Appointments will be populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Services Tab -->
+                <div id="services-tab" class="dashboard-content p-6 hidden">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-semibold text-slate-900">Serviços</h3>
+                        <button onclick="openCreateService()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center space-x-2">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                            <span>Novo Serviço</span>
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="servicesList">
+                        <!-- Services will be populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Availability Tab -->
+                <div id="availability-tab" class="dashboard-content p-6 hidden">
+                    <h3 class="text-lg font-semibold text-slate-900 mb-6">Horários de Funcionamento</h3>
+                    <div class="space-y-4" id="availabilityList">
+                        <!-- Availability will be populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Appointments Tab -->
+                <div id="appointments-tab" class="dashboard-content p-6 hidden">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-semibold text-slate-900">Todos os Agendamentos</h3>
+                        <button onclick="openCreateAppointment()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center space-x-2">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                            <span>Novo Agendamento</span>
+                        </button>
+                    </div>
+                    <div class="space-y-4" id="allAppointmentsList">
+                        <!-- All appointments will be populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Public Booking Page -->
+    <div id="booking-page" class="hidden min-h-screen bg-slate-50">
+        <!-- Header -->
+        <header class="bg-white border-b border-slate-200">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-16">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-gradient-to-br from-pink-400 to-purple-600 rounded-full flex items-center justify-center">
+                            <span class="text-white font-bold">S</span>
+                        </div>
+                        <div>
+                            <h1 class="text-xl font-bold text-slate-900">Salão da Maria</h1>
+                            <p class="text-sm text-slate-600">Salão de Beleza</p>
+                        </div>
+                    </div>
+                    <button onclick="showPage('landing')" class="flex items-center space-x-2 text-slate-600 hover:text-slate-900">
+                        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                        <span class="hidden sm:inline">Voltar</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Provider Info -->
+            <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
+                <div class="flex flex-col md:flex-row gap-6">
+                    <img src="https://images.unsplash.com/photo-1560066984-138dadb4c035?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=250" 
+                         alt="Interior do estabelecimento" class="w-full md:w-80 h-48 object-cover rounded-lg">
+                    <div class="flex-1">
+                        <h2 class="text-2xl font-bold text-slate-900 mb-2">Salão da Maria</h2>
+                        <p class="text-slate-600 mb-4">Oferecemos serviços de qualidade com profissionais experientes em cortes, coloração e tratamentos capilares.</p>
+                        <div class="flex flex-col space-y-2 text-sm text-slate-600">
+                            <div class="flex items-center space-x-1">
+                                <i data-lucide="map-pin" class="w-4 h-4"></i>
+                                <span>Rua das Flores, 123 - Centro</span>
+                            </div>
+                            <div class="flex items-center space-x-1">
+                                <i data-lucide="phone" class="w-4 h-4"></i>
+                                <span>(11) 98765-4321</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid lg:grid-cols-3 gap-8">
+                <!-- Services Selection -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-lg shadow-sm p-6">
+                        <h3 class="text-xl font-semibold text-slate-900 mb-6">Escolha o Serviço</h3>
+                        <div class="space-y-4" id="publicServicesList">
+                            <!-- Services populated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Booking Form -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-lg shadow-sm p-6 sticky top-24">
+                        <h3 class="text-lg font-semibold text-slate-900 mb-4">Agendar Horário</h3>
+                        <form id="bookingForm" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-2">Data</label>
+                                <input type="date" id="bookingDate" required
+                                       class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-2">Horário</label>
+                                <select id="bookingTime" required
+                                        class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="">Selecione um horário</option>
+                                    <option value="09:00">09:00</option>
+                                    <option value="09:30">09:30</option>
+                                    <option value="10:00">10:00</option>
+                                    <option value="10:30">10:30</option>
+                                    <option value="14:00">14:00</option>
+                                    <option value="14:30">14:30</option>
+                                    <option value="15:00">15:00</option>
+                                    <option value="15:30">15:30</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-2">Nome completo</label>
+                                <input type="text" id="clientName" required placeholder="Seu nome completo"
+                                       class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-2">Telefone</label>
+                                <input type="tel" id="clientPhone" required placeholder="(11) 99999-9999"
+                                       class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-2">Email (opcional)</label>
+                                <input type="email" id="clientEmail" placeholder="seu@email.com"
+                                       class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 font-semibold">
+                                Confirmar Agendamento
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal for Creating Service -->
+    <div id="serviceModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md">
+            <h3 class="text-lg font-semibold text-slate-900 mb-4">Novo Serviço</h3>
+            <form id="serviceForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Nome do Serviço</label>
+                    <input type="text" id="serviceName" required placeholder="Ex: Corte Feminino"
+                           class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Preço (R$)</label>
+                    <input type="number" id="servicePrice" required step="0.01" placeholder="50.00"
+                           class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Duração (minutos)</label>
+                    <input type="number" id="serviceDuration" required placeholder="60"
+                           class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Descrição</label>
+                    <textarea id="serviceDescription" rows="3" placeholder="Descrição do serviço..."
+                              class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                </div>
+                <div class="flex space-x-3">
+                    <button type="button" onclick="closeServiceModal()" class="flex-1 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        Criar Serviço
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal for Creating Appointment -->
+    <div id="appointmentModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md">
+            <h3 class="text-lg font-semibold text-slate-900 mb-4">Novo Agendamento</h3>
+            <form id="appointmentForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Serviço</label>
+                    <select id="appointmentService" required
+                            class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Selecione um serviço</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Nome do Cliente</label>
+                    <input type="text" id="appointmentClientName" required placeholder="Nome completo"
+                           class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Telefone</label>
+                        <input type="tel" id="appointmentClientPhone" placeholder="(11) 99999-9999"
+                               class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Email</label>
+                        <input type="email" id="appointmentClientEmail" placeholder="email@exemplo.com"
+                               class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Data</label>
+                        <input type="date" id="appointmentDate" required
+                               class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Horário</label>
+                        <select id="appointmentTime" required
+                                class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">Horário</option>
+                            <option value="08:00">08:00</option>
+                            <option value="08:30">08:30</option>
+                            <option value="09:00">09:00</option>
+                            <option value="09:30">09:30</option>
+                            <option value="10:00">10:00</option>
+                            <option value="10:30">10:30</option>
+                            <option value="11:00">11:00</option>
+                            <option value="11:30">11:30</option>
+                            <option value="14:00">14:00</option>
+                            <option value="14:30">14:30</option>
+                            <option value="15:00">15:00</option>
+                            <option value="15:30">15:30</option>
+                            <option value="16:00">16:00</option>
+                            <option value="16:30">16:30</option>
+                            <option value="17:00">17:00</option>
+                            <option value="17:30">17:30</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Observações</label>
+                    <textarea id="appointmentNotes" rows="3" placeholder="Observações adicionais..."
+                              class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                </div>
+                <div class="flex space-x-3">
+                    <button type="button" onclick="closeAppointmentModal()" class="flex-1 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        Criar Agendamento
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Demo data
+        let services = [
+            { id: 1, name: 'Corte Feminino', price: 45.00, duration: 60, description: 'Corte moderno e personalizado' },
+            { id: 2, name: 'Coloração', price: 80.00, duration: 120, description: 'Coloração completa com produtos de qualidade' },
+            { id: 3, name: 'Hidratação', price: 35.00, duration: 45, description: 'Tratamento nutritivo para cabelos' }
+        ];
+
+        let appointments = [
+            { id: 1, clientName: 'Ana Silva', clientPhone: '(11) 98765-4321', service: 'Corte Feminino', date: '2024-08-04', time: '09:00', status: 'confirmed' },
+            { id: 2, clientName: 'Maria Santos', clientPhone: '(11) 97654-3210', service: 'Coloração', date: '2024-08-04', time: '14:00', status: 'pending' },
+            { id: 3, clientName: 'João Oliveira', clientPhone: '(11) 96543-2109', service: 'Hidratação', date: '2024-08-05', time: '10:30', status: 'confirmed' }
+        ];
+
+        let selectedService = null;
+
+        // Navigation functions
+        function showPage(pageId) {
+            const pages = ['landing-page', 'setup-page', 'dashboard-page', 'booking-page'];
+            pages.forEach(page => {
+                document.getElementById(page).classList.add('hidden');
+            });
+            document.getElementById(pageId + '-page').classList.remove('hidden');
+            
+            if (pageId === 'booking') {
+                renderPublicServices();
+            } else if (pageId === 'dashboard') {
+                renderDashboard();
+            }
+        }
+
+        function showDashboardTab(tabId) {
+            // Update tab buttons
+            document.querySelectorAll('.dashboard-tab').forEach(tab => {
+                tab.classList.remove('border-blue-600', 'text-blue-600');
+                tab.classList.add('border-transparent', 'text-slate-500');
+            });
+            event.target.classList.remove('border-transparent', 'text-slate-500');
+            event.target.classList.add('border-blue-600', 'text-blue-600');
+
+            // Update content
+            document.querySelectorAll('.dashboard-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            document.getElementById(tabId + '-tab').classList.remove('hidden');
+
+            // Render specific content
+            if (tabId === 'services') {
+                renderServices();
+            } else if (tabId === 'appointments') {
+                renderAllAppointments();
+            } else if (tabId === 'availability') {
+                renderAvailability();
+            } else if (tabId === 'overview') {
+                renderRecentAppointments();
+            }
+        }
+
+        function logout() {
+            showPage('landing');
+        }
+
+        // Render functions
+        function renderDashboard() {
+            renderRecentAppointments();
+            updateStats();
+        }
+
+        function renderRecentAppointments() {
+            const container = document.getElementById('appointmentsList');
+            if (!container) return;
+
+            container.innerHTML = appointments.slice(0, 5).map(apt => `
+                <div class="flex items-center justify-between p-4 border border-slate-200 rounded-lg">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                            <span class="text-blue-600 font-medium">${apt.clientName.split(' ').map(n => n[0]).join('')}</span>
+                        </div>
+                        <div>
+                            <p class="font-medium text-slate-900">${apt.clientName}</p>
+                            <p class="text-sm text-slate-600">${apt.service} • ${apt.date} às ${apt.time}</p>
+                        </div>
+                    </div>
+                    <span class="px-2 py-1 text-xs font-medium rounded-full ${apt.status === 'confirmed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">
+                        ${apt.status === 'confirmed' ? 'Confirmado' : 'Pendente'}
+                    </span>
+                </div>
+            `).join('');
+        }
+
+        function renderAllAppointments() {
+            const container = document.getElementById('allAppointmentsList');
+            if (!container) return;
+
+            container.innerHTML = appointments.map(apt => `
+                <div class="flex items-center justify-between p-4 border border-slate-200 rounded-lg">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                            <span class="text-blue-600 font-medium">${apt.clientName.split(' ').map(n => n[0]).join('')}</span>
+                        </div>
+                        <div>
+                            <p class="font-medium text-slate-900">${apt.clientName}</p>
+                            <p class="text-sm text-slate-600">${apt.clientPhone}</p>
+                        </div>
+                        <div>
+                            <p class="font-medium text-slate-900">${apt.service}</p>
+                            <p class="text-sm text-slate-600">${apt.date} às ${apt.time}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <span class="px-2 py-1 text-xs font-medium rounded-full ${apt.status === 'confirmed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">
+                            ${apt.status === 'confirmed' ? 'Confirmado' : 'Pendente'}
+                        </span>
+                        <button onclick="updateAppointmentStatus(${apt.id}, '${apt.status === 'confirmed' ? 'completed' : 'confirmed'}')" 
+                                class="px-3 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700">
+                            ${apt.status === 'confirmed' ? 'Concluir' : 'Confirmar'}
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderServices() {
+            const container = document.getElementById('servicesList');
+            if (!container) return;
+
+            container.innerHTML = services.map(service => `
+                <div class="border border-slate-200 rounded-lg p-4">
+                    <h4 class="font-semibold text-slate-900 mb-2">${service.name}</h4>
+                    <p class="text-slate-600 text-sm mb-3">${service.description}</p>
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <span class="text-lg font-bold text-slate-900">R$ ${service.price.toFixed(2)}</span>
+                            <span class="text-sm text-slate-600 ml-2">${service.duration}min</span>
+                        </div>
+                        <button onclick="deleteService(${service.id})" class="text-red-600 hover:text-red-800">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function renderPublicServices() {
+            const container = document.getElementById('publicServicesList');
+            if (!container) return;
+
+            container.innerHTML = services.map(service => `
+                <div onclick="selectService(${service.id})" 
+                     class="border rounded-lg p-4 cursor-pointer transition-colors ${selectedService?.id === service.id ? 'border-blue-500 bg-blue-50' : 'border-slate-200 hover:border-blue-300 hover:bg-blue-50'}">
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-slate-900">${service.name}</h4>
+                            <p class="text-slate-600 text-sm mb-2">${service.description}</p>
+                            <div class="flex items-center space-x-4 text-sm">
+                                <span class="flex items-center text-slate-600">
+                                    <i data-lucide="clock" class="w-4 h-4 mr-1"></i>
+                                    ${service.duration} min
+                                </span>
+                                <span class="text-xl font-bold text-slate-900">R$ ${service.price.toFixed(2)}</span>
+                            </div>
+                        </div>
+                        <div class="ml-4">
+                            <div class="w-6 h-6 border-2 rounded-full ${selectedService?.id === service.id ? 'bg-blue-600 border-blue-600' : 'border-slate-300'}">
+                                ${selectedService?.id === service.id ? '<div class="w-full h-full flex items-center justify-center"><div class="w-3 h-3 bg-white rounded-full"></div></div>' : ''}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function renderAvailability() {
+            const container = document.getElementById('availabilityList');
+            if (!container) return;
+
+            const weekDays = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+            const availability = [
+                { day: 1, start: '09:00', end: '18:00' },
+                { day: 2, start: '09:00', end: '18:00' },
+                { day: 3, start: '09:00', end: '18:00' },
+                { day: 4, start: '09:00', end: '18:00' },
+                { day: 5, start: '09:00', end: '18:00' },
+                { day: 6, start: '09:00', end: '15:00' }
+            ];
+
+            container.innerHTML = availability.map(avail => `
+                <div class="flex items-center justify-between p-4 border border-slate-200 rounded-lg">
+                    <span class="font-medium text-slate-900">${weekDays[avail.day]}</span>
+                    <span class="text-slate-600">${avail.start} às ${avail.end}</span>
+                </div>
+            `).join('');
+        }
+
+        function updateStats() {
+            const today = new Date().toISOString().split('T')[0];
+            const todayAppointments = appointments.filter(apt => apt.date === today).length;
+            document.getElementById('todayCount').textContent = todayAppointments;
+            
+            document.getElementById('weekCount').textContent = appointments.length;
+            
+            const revenue = appointments.filter(apt => apt.status === 'completed')
+                .reduce((sum, apt) => {
+                    const service = services.find(s => s.name === apt.service);
+                    return sum + (service ? service.price : 0);
+                }, 0);
+            document.getElementById('revenueCount').textContent = `R$ ${revenue.toFixed(2)}`;
+        }
+
+        // Service functions
+        function selectService(serviceId) {
+            selectedService = services.find(s => s.id === serviceId);
+            renderPublicServices();
+        }
+
+        function openCreateService() {
+            document.getElementById('serviceModal').classList.remove('hidden');
+        }
+
+        function closeServiceModal() {
+            document.getElementById('serviceModal').classList.add('hidden');
+            document.getElementById('serviceForm').reset();
+        }
+
+        function openCreateAppointment() {
+            const select = document.getElementById('appointmentService');
+            select.innerHTML = '<option value="">Selecione um serviço</option>' + 
+                services.map(service => `<option value="${service.id}">${service.name} - R$ ${service.price.toFixed(2)}</option>`).join('');
+            
+            // Set minimum date to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('appointmentDate').min = today;
+            
+            document.getElementById('appointmentModal').classList.remove('hidden');
+        }
+
+        function closeAppointmentModal() {
+            document.getElementById('appointmentModal').classList.add('hidden');
+            document.getElementById('appointmentForm').reset();
+        }
+
+        function deleteService(serviceId) {
+            if (confirm('Tem certeza que deseja excluir este serviço?')) {
+                services = services.filter(s => s.id !== serviceId);
+                renderServices();
+                showNotification('Serviço excluído com sucesso!');
+            }
+        }
+
+        function updateAppointmentStatus(appointmentId, newStatus) {
+            const appointment = appointments.find(apt => apt.id === appointmentId);
+            if (appointment) {
+                appointment.status = newStatus;
+                renderAllAppointments();
+                renderRecentAppointments();
+                updateStats();
+                showNotification('Status do agendamento atualizado!');
+            }
+        }
+
+        function showNotification(message) {
+            // Simple notification
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-4 right-4 bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Form handlers
+        document.getElementById('setup-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            showNotification('Perfil criado com sucesso!');
+            showPage('dashboard');
+        });
+
+        document.getElementById('serviceForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const newService = {
+                id: services.length + 1,
+                name: document.getElementById('serviceName').value,
+                price: parseFloat(document.getElementById('servicePrice').value),
+                duration: parseInt(document.getElementById('serviceDuration').value),
+                description: document.getElementById('serviceDescription').value
+            };
+            services.push(newService);
+            renderServices();
+            closeServiceModal();
+            showNotification('Serviço criado com sucesso!');
+        });
+
+        document.getElementById('appointmentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const serviceId = document.getElementById('appointmentService').value;
+            const service = services.find(s => s.id == serviceId);
+            
+            const newAppointment = {
+                id: appointments.length + 1,
+                clientName: document.getElementById('appointmentClientName').value,
+                clientPhone: document.getElementById('appointmentClientPhone').value,
+                service: service.name,
+                date: document.getElementById('appointmentDate').value,
+                time: document.getElementById('appointmentTime').value,
+                status: 'confirmed'
+            };
+            appointments.push(newAppointment);
+            renderAllAppointments();
+            renderRecentAppointments();
+            updateStats();
+            closeAppointmentModal();
+            showNotification('Agendamento criado com sucesso!');
+        });
+
+        document.getElementById('bookingForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (!selectedService) {
+                alert('Por favor, selecione um serviço.');
+                return;
+            }
+            
+            const newAppointment = {
+                id: appointments.length + 1,
+                clientName: document.getElementById('clientName').value,
+                clientPhone: document.getElementById('clientPhone').value,
+                service: selectedService.name,
+                date: document.getElementById('bookingDate').value,
+                time: document.getElementById('bookingTime').value,
+                status: 'pending'
+            };
+            appointments.push(newAppointment);
+            showNotification('Agendamento realizado com sucesso! Aguarde a confirmação.');
+            document.getElementById('bookingForm').reset();
+            selectedService = null;
+            renderPublicServices();
+        });
+
+        // Set minimum date for booking
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('bookingDate').min = today;
+            document.getElementById('appointmentDate').min = today;
+        });
+
+        // Auto-generate slug from business name
+        document.getElementById('businessName').addEventListener('input', function() {
+            const slug = this.value.toLowerCase()
+                .replace(/[^a-z0-9]/g, '-')
+                .replace(/-+/g, '-')
+                .replace(/^-|-$/g, '');
+            document.getElementById('slug').value = slug;
+        });
+
+        // Initialize icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>
