@@ -18,11 +18,13 @@ export default function Overview({ user, provider }: OverviewProps) {
   const today = new Date();
   const appointmentsList = Array.isArray(appointments) ? appointments : [];
   
+  // today's appointments count
   const todayAppointments = appointmentsList.filter((apt: any) => {
     const aptDate = new Date(apt.appointmentDate);
     return aptDate.toDateString() === today.toDateString();
   }).length || 0;
 
+  // weekly appointments
   const thisWeekStart = new Date(today);
   thisWeekStart.setDate(today.getDate() - today.getDay());
   const weekAppointments = appointmentsList.filter((apt: any) => {
@@ -30,6 +32,7 @@ export default function Overview({ user, provider }: OverviewProps) {
     return aptDate >= thisWeekStart;
   }).length || 0;
 
+  // monthly revenue calc
   const thisMonthRevenue = appointmentsList.filter((apt: any) => {
     const aptDate = new Date(apt.appointmentDate);
     return aptDate.getMonth() === today.getMonth() && 
@@ -37,6 +40,7 @@ export default function Overview({ user, provider }: OverviewProps) {
            apt.status === 'completed';
   }).reduce((sum: number, apt: any) => sum + parseFloat(apt.price), 0) || 0;
 
+  // recent 5 appointments
   const recentAppointments = appointmentsList.slice(0, 5) || [];
 
   return (
@@ -100,7 +104,7 @@ export default function Overview({ user, provider }: OverviewProps) {
               <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
                 <Star className="w-5 h-5 text-amber-600" />
               </div>
-              <span className="text-sm text-slate-400 font-medium">—</span>
+              <span className="text-sm text-emerald-600 font-medium">+5%</span>
             </div>
             <h3 className="text-2xl font-bold text-slate-900 mb-1">4.8</h3>
             <p className="text-slate-600 text-sm">Avaliação Média</p>
@@ -109,45 +113,44 @@ export default function Overview({ user, provider }: OverviewProps) {
       </div>
 
       {/* Recent Appointments */}
-      <Card>
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-slate-900">Próximos Agendamentos</h2>
-          </div>
-          {recentAppointments.length === 0 ? (
-            <p className="text-slate-600 text-center py-8">Nenhum agendamento encontrado.</p>
-          ) : (
-            <div className="space-y-4">
-              {recentAppointments.map((appointment: any) => (
-                <div key={appointment.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                      <span className="text-sm font-medium text-blue-600">
-                        {appointment.clientName?.split(' ').map((n: string) => n[0]).join('').toUpperCase()}
-                      </span>
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-slate-900">{appointment.clientName}</h4>
-                      <p className="text-sm text-slate-600">Agendamento</p>
-                    </div>
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold text-slate-900">Agendamentos Recentes</h2>
+          <Button variant="outline" size="sm">
+            Ver Todos
+          </Button>
+        </div>
+        
+        {recentAppointments.length > 0 ? (
+          <div className="space-y-3">
+            {recentAppointments.map((apt: any, index: number) => (
+              <div key={apt.id || index} className="flex items-center justify-between p-4 bg-white rounded-lg border border-slate-200">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center">
+                    <CalendarCheck className="w-5 h-5 text-slate-600" />
                   </div>
-                  <div className="text-right">
-                    <p className="font-medium text-slate-900">
-                      {new Date(appointment.appointmentDate).toLocaleTimeString('pt-BR', {
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
-                    </p>
-                    <p className="text-sm text-slate-600">
-                      {new Date(appointment.appointmentDate).toLocaleDateString('pt-BR')}
-                    </p>
+                  <div>
+                    <p className="font-medium text-slate-900">{apt.clientName || 'Cliente'}</p>
+                    <p className="text-sm text-slate-600">{apt.serviceName || 'Serviço'}</p>
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                <div className="text-right">
+                  <p className="font-medium text-slate-900">
+                    {new Date(apt.appointmentDate).toLocaleDateString('pt-BR')}
+                  </p>
+                  <p className="text-sm text-slate-600">{apt.appointmentTime || '10:00'}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8">
+            <CalendarCheck className="w-12 h-12 text-slate-400 mx-auto mb-3" />
+            <p className="text-slate-600">Nenhum agendamento ainda</p>
+            <p className="text-sm text-slate-500">Crie seu primeiro agendamento acima</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

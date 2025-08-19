@@ -10,9 +10,11 @@ import Dashboard from "@/pages/dashboard";
 import Booking from "@/pages/booking";
 import NotFound from "@/pages/not-found";
 
+// Main router component - handles auth state
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
 
+  // TODO: maybe add loading spinner here later
   return (
     <Switch>
       {isLoading || !isAuthenticated ? (
@@ -28,6 +30,7 @@ function Router() {
   );
 }
 
+// App wrapper with all the providers
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
